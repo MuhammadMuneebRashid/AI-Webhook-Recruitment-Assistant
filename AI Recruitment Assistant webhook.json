@@ -1,0 +1,821 @@
+{
+  "name": "My workflow 14",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9b48cfb1-f6de-4dcd-9c7b-b758419c0b62",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a3004705-65ee-4498-a746-6b24ee18b924",
+      "name": "Webhook",
+      "webhookId": "9b48cfb1-f6de-4dcd-9c7b-b758419c0b62"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=candidate_information\nCandidate name: {{ $('Webhook').item.json.body.data.fields[0].value }} \nemail:{{ $('Webhook').item.json.body.data.fields[1].value }}\nskills in form:{{ $('Webhook').item.json.body.data.fields[2].value }}\nphone:{{ $('Webhook').item.json.body.data.fields[3].value }}\nyear of experience:{{ $('Webhook').item.json.body.data.fields[4].value }}\nkey skills:{{ $('Webhook').item.json.body.data.fields[5].value }} \nskills in cv: dont write extra data\nresume: {{ $json.text }}\nanalyze it  explain its strengths, weakness \nrecommendation ,reasons and  also check missing skills according to form ask two  questions before hiring and give a candidate score out of 100 but dont write /100 ,estimated salary, also write subject for HR email and body according to candidate score if it is >=80 then a shortlisted reply if less than <=60-70 then review message if less than 60 then write mail of rejection directed to candidate  also  give response in json",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "046788f2-d526-4fb7-8929-ed60d6a2fe8c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        224
+      ],
+      "id": "b3a06eea-e9ce-4469-9553-04c2899e6ecb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.data.fields[6].value[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5966553e-1cf7-4687-8b39-d135a9fa3686",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "56e37778-beb9-475e-b474-36e0c065ee1c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"candidate_name\":\"\",\n  \"email\":\"\",\n  \"phone\":\"\",\n  \"skills_in_form\":\"\",\n  \"years_of_experience\":\"\",\n  \"strengths\":[],\n  \"weakness\":[],\n  \"recommendation\":\"\",\n  \"reasons\":\"\",\n  \"interview_questions\":[],\n  \"skills_in_cv\":\"\",\n  \"missing_skills\":\"\",\n  \"candidate_score\":\"\",\n  \"estimated_salary\":\"\",\n  \"HR_email_subject\":\"\",\n  \"HR_email_body\":\"\",\n  \"ai_response\":\"\"\n\n  \n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        800,
+        208
+      ],
+      "id": "4d98b397-9b5c-43c5-b79e-83811a96c44e",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.candidate_score }}",
+                    "rightValue": 80,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    },
+                    "id": "5e30e3f1-680c-413c-97bf-a53a336a0f20"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "9275e1b0-8a34-428b-8da2-6c8e2fd2dea5",
+                    "leftValue": "={{ $json.candidate_score }}",
+                    "rightValue": 60,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "08dbea84-51d2-4ea5-a3c5-23022f0427af",
+                    "leftValue": "={{ $json.candidate_score }}",
+                    "rightValue": 60,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1328,
+        -16
+      ],
+      "id": "2cecbb5d-f15a-4d41-abd5-f667e1c344c8",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "muneeb79rashid@gmail.com",
+        "subject": "={{ $('AI Agent').item.json.output.HR_email_subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.HR_email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        -128
+      ],
+      "id": "ec55cbbe-9840-44ac-9c5a-aa92ab1f72f1",
+      "name": "Send a message",
+      "webhookId": "459a46a4-6a4e-421f-8cb9-3095162b6c94",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dyBoYT2E6jlbJqv5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "muneeb79rashid@gmail.com",
+        "subject": "={{ $('AI Agent').item.json.output.HR_email_subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.HR_email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        32
+      ],
+      "id": "bc9da8c0-33c4-46d9-881d-b39da3f97e7d",
+      "name": "Send a message1",
+      "webhookId": "2ba03c00-620f-43a0-84aa-936fbea55242",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dyBoYT2E6jlbJqv5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "muneeb56rashid@gmail.com",
+        "subject": "={{ $('AI Agent').item.json.output.HR_email_subject }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output.HR_email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        224
+      ],
+      "id": "0aff3b05-8fcd-431a-9452-ce85ec6ab96a",
+      "name": "Send a message2",
+      "webhookId": "eeb81cb5-ebfe-4681-a5b9-be678a61f111",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dyBoYT2E6jlbJqv5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15zw9Na3I_Bueaqf2Ox1YrKqixaOCstCk2dWs3TDYstQ",
+          "mode": "list",
+          "cachedResultName": "wehbook",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15zw9Na3I_Bueaqf2Ox1YrKqixaOCstCk2dWs3TDYstQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15zw9Na3I_Bueaqf2Ox1YrKqixaOCstCk2dWs3TDYstQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_name",
+              "displayName": "customer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customer_message",
+              "displayName": "customer_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ai_reply",
+              "displayName": "ai_reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message",
+              "displayName": "message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "threadId",
+              "displayName": "threadId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "labelIds",
+              "displayName": "labelIds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "candidate_name",
+              "displayName": "candidate_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "years_of_experience",
+              "displayName": "years_of_experience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "skills_in_form",
+              "displayName": "skills_in_form",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "strengths",
+              "displayName": "strengths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "weakness",
+              "displayName": "weakness",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recommendation",
+              "displayName": "recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reasons",
+              "displayName": "reasons",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "interview_questions",
+              "displayName": "interview_questions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "skills_in_cv",
+              "displayName": "skills_in_cv",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "missing_skills",
+              "displayName": "missing_skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "candidate_score",
+              "displayName": "candidate_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "estimated_salary",
+              "displayName": "estimated_salary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ai_response",
+              "displayName": "ai_response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "4aeddd34-1cca-4aeb-8d21-7ba831b40084",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gdk3XjLOmdB4qRel",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8c1f50f5-0e91-4a60-9b08-b59c585949cd",
+              "name": "candidate_name",
+              "value": "={{ $json.output.candidate_name }}",
+              "type": "string"
+            },
+            {
+              "id": "62b23c30-47ce-434c-973f-0c9ddabb7c88",
+              "name": "email",
+              "value": "={{ $json.output.email }}",
+              "type": "string"
+            },
+            {
+              "id": "28c0fff2-33b3-4e13-9f7c-ca60f9c00c0d",
+              "name": "phone",
+              "value": "={{ $json.output.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "28ad9330-ff8f-4f57-80bc-bd82acc4f208",
+              "name": "years_of_experience",
+              "value": "={{ $json.output.years_of_experience }}",
+              "type": "string"
+            },
+            {
+              "id": "5ddfb418-ca33-427e-9eaf-0f9a3d30e717",
+              "name": "skills_in_form",
+              "value": "={{ $json.output.skills_in_form }}",
+              "type": "string"
+            },
+            {
+              "id": "5d27421c-b0ac-4871-a982-0f045769af27",
+              "name": "strengths",
+              "value": "={{ $json.output.strengths }}",
+              "type": "array"
+            },
+            {
+              "id": "11cd5b6b-2f9c-4828-bd6c-e13c38c77984",
+              "name": "weakness",
+              "value": "={{ $json.output.weakness }}",
+              "type": "array"
+            },
+            {
+              "id": "033b4b67-b461-415f-b99e-c6a544952329",
+              "name": "recommendation",
+              "value": "={{ $json.output.recommendation }}",
+              "type": "string"
+            },
+            {
+              "id": "30f8a7e3-db8c-47ac-ba0c-2f4efa49ad54",
+              "name": "reasons",
+              "value": "={{ $json.output.reasons }}",
+              "type": "string"
+            },
+            {
+              "id": "dd369cf7-b944-437f-9957-06b754dba585",
+              "name": "interview_questions",
+              "value": "={{ $json.output.interview_questions }}",
+              "type": "array"
+            },
+            {
+              "id": "705f47b6-0777-4d14-a670-12aaedc88684",
+              "name": "skills_in_cv",
+              "value": "={{ $json.output.skills_in_cv }}",
+              "type": "string"
+            },
+            {
+              "id": "8e4648a7-5a6a-46d1-b99a-82bdc6c0d7e1",
+              "name": "missing_skills",
+              "value": "={{ $json.output.missing_skills }}",
+              "type": "string"
+            },
+            {
+              "id": "fec3b5ae-b026-47d0-acbd-38f559d8c802",
+              "name": "candidate_score",
+              "value": "={{ $json.output.candidate_score }}",
+              "type": "string"
+            },
+            {
+              "id": "efea2216-a248-4db8-a16f-c55a39a76d3d",
+              "name": "estimated_salary",
+              "value": "={{ $json.output.estimated_salary }}",
+              "type": "string"
+            },
+            {
+              "id": "afe65b77-a806-44cb-9620-cc6ad04fccaa",
+              "name": "ai_response",
+              "value": "={{ $json.output.ai_response }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        0
+      ],
+      "id": "a0a01fbe-fba3-4f36-8373-20f2e9c8c46b",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b8b53088-2ecc-42f7-91f3-af388bbf4ccb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49632c978aa19314c777a54ee16e828e5331fdf445f4f0eaaad7b722975a8cb1"
+  },
+  "nodeGroups": [],
+  "id": "DZDjEJP2wksghwfQ",
+  "tags": []
+}
