@@ -181,7 +181,7 @@
     },
     {
       "parameters": {
-        "sendTo": "muneeb79rashid@gmail.com",
+        "sendTo": "muneeb6rashid@gmail.com",
         "subject": "={{ $('AI Agent').item.json.output.HR_email_subject }}",
         "emailType": "text",
         "message": "={{ $('AI Agent').item.json.output.HR_email_body }}",
@@ -205,7 +205,7 @@
     },
     {
       "parameters": {
-        "sendTo": "muneeb79rashid@gmail.com",
+        "sendTo": "muneeb9rashid@gmail.com",
         "subject": "={{ $('AI Agent').item.json.output.HR_email_subject }}",
         "emailType": "text",
         "message": "={{ $('AI Agent').item.json.output.HR_email_body }}",
@@ -229,7 +229,7 @@
     },
     {
       "parameters": {
-        "sendTo": "muneeb56rashid@gmail.com",
+        "sendTo": "muneeb54rashid@gmail.com",
         "subject": "={{ $('AI Agent').item.json.output.HR_email_subject }}",
         "emailType": "text",
         "message": "={{ $('AI Agent').item.json.output.HR_email_body }}",
