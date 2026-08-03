@@ -295,6 +295,9 @@ Potential improvements include:
 
 ## 👨‍💻 Author
   Muneeb
+
+<img width="1920" height="901" alt="webhook AI Recruitment System" src="https://github.com/user-attachments/assets/70bb5e6e-4d4b-43a4-8e14-d3e923554d97" />
+
 Built as an **AI-powered n8n recruitment automation project** demonstrating workflow automation, document processing, LLM integration, structured AI outputs, data storage, conditional routing, and automated email communication.
 
 ---
